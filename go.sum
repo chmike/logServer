@@ -1,0 +1,6 @@
+github.com/elastic/go-elasticsearch/v7 v7.3.0 h1:H29Nqf9cB9dVxX6LwS+zTDC2D4t9s+8dK8ln4HPS9rw=
+github.com/elastic/go-elasticsearch/v7 v7.3.0/go.mod h1:OJ4wdbtDNk5g503kvlHLyErCgQwwzmDtaFC4XyOxXA4=
+github.com/gowww/router v0.0.0-20180327195201-5f9c626ef619 h1:nS1DFy3mh1wK3zm1xGtvMnWje5zA9zVJTLuPKBovHVw=
+github.com/gowww/router v0.0.0-20180327195201-5f9c626ef619/go.mod h1:avUfKJbpfLNee1EI8ur7ckKAuIuT7hHNZhGrBsRKnNY=
+github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

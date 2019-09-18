@@ -1,0 +1,83 @@
+# Commande pour récupérer la liste des services ayant envoyé des logs:
+######################################################################
+
+$ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-*/_search?pretty' -H 'Content-Type: application/json' -d '
+{
+  "size": 0,
+  "aggs": {
+     "componentname": {
+        "terms": { 
+           "field": "componentname.keyword",
+           "size": 100
+        }
+     }
+  }
+}'
+
+# Pour récupérer la liste des levelname:
+######################################################################
+
+$ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-*/_search?pretty' -H 'Content-Type: application/json' -d '
+{
+  "size": 0,
+  "aggs": {
+     "levelnames": {
+        "terms": { 
+           "field": "levelname.keyword",
+           "size": 100
+        }
+     }
+  }
+}'
+
+# Suppression des index avec records tronqués:
+######################################################################
+
+$ curl -XDELETE 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-dirac-logs-%%\{componentindex\}*'
+
+# Obtenir la liste des indices:
+######################################################################
+
+$ curl 'http://elastic:cppmcppm@134.158.21.55:9200/_cat/indices?v'
+
+
+# Listing des logs en ordre inverse 
+######################################################################
+
+$ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-dirac-logs-workloadmanagement-sitedirector-*/_search?pretty' -H 'Content-Type: application/json' -d '
+{ 
+  "size": 10, 
+  "from": 0, 
+  "query": {
+    "match_all" : {}
+  }, 
+  "sort" : { 
+    "@timestamp": {"order":"desc"}
+  }
+}'
+
+# Listing des records depuis un timestamp donné
+######################################################################
+
+$ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-dirac-logs-workloadmanagement-sitedirector-*/_search?pretty' -H 'Content-Type: application/json' -d '
+{ 
+  "query": { 
+    "range": { 
+      "asctime.keyword": { 
+        "gte": "2019-09-16 10:00:00" 
+      }
+    }
+  },
+  "sort": {
+    "asctime.keyword": {
+      "order": "asc"
+    }
+  }
+}'
+
+# Listing de la définition des champs (mapping)
+######################################################################
+
+$ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-dirac-logs-*/_mapping?pretty'
+
+
