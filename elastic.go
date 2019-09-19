@@ -76,8 +76,8 @@ func getServicNames(es *elasticsearch.Client) ([]string, error) {
 		es.Search.WithContext(context.Background()),
 		es.Search.WithIndex("france-grille-*"),
 		es.Search.WithBody(&buf),
-		es.Search.WithTrackTotalHits(true),
-		es.Search.WithPretty(),
+		// es.Search.WithTrackTotalHits(true),
+		// es.Search.WithPretty(),
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "elasticsearch response")
