@@ -54,7 +54,7 @@ func mustInitElasticsearch() *elasticsearch.Client {
 	return es
 }
 
-func getServicNames(es *elasticsearch.Client) ([]string, error) {
+func getServices(es *elasticsearch.Client) ([]string, error) {
 	// Build request
 	var buf bytes.Buffer
 	query := map[string]interface{}{
@@ -102,10 +102,81 @@ func getServicNames(es *elasticsearch.Client) ([]string, error) {
 	}
 
 	bucket := r["aggregations"].(map[string]interface{})["componentNames"].(map[string]interface{})["buckets"].([]interface{})
-	serviceNames := make([]string, len(bucket))
+	services := make([]string, len(bucket))
 	for i := range bucket {
-		serviceNames[i] = bucket[i].(map[string]interface{})["key"].(string)
+		services[i] = bucket[i].(map[string]interface{})["key"].(string)
 	}
-	sort.Strings(serviceNames)
-	return serviceNames, nil
+	sort.Strings(services)
+	return services, nil
+}
+
+func getMessages(es *elasticsearch.Client, service string, n int) ([]interface{}, error) {
+	// Build request
+	var buf bytes.Buffer
+	query := map[string]interface{}{
+		"size": n,
+		"query": map[string]interface{}{
+			"term": map[string]interface{}{
+				"componentname.keyword": service,
+			},
+		},
+		"sort": []interface{}{
+			map[string]interface{}{
+				"utime": map[string]interface{}{
+					"order": "desc",
+				},
+			},
+		},
+	}
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		return nil, errors.Wrap(err, "encoding elasticsearch query")
+	}
+	// Perform the search request.
+	res, err := es.Search(
+		es.Search.WithContext(context.Background()),
+		es.Search.WithIndex("france-grille-*"),
+		es.Search.WithBody(&buf),
+		// es.Search.WithPretty(),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "elasticsearch response")
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var e map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return nil, errors.Wrap(err, "parsing elasticsearch error response")
+		}
+		return nil, errors.Errorf("elasticsearch: [%s] %s: %s",
+			res.Status(),
+			e["error"].(map[string]interface{})["type"],
+			e["error"].(map[string]interface{})["reason"])
+	}
+
+	var r map[string]interface{}
+
+	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
+		return nil, errors.Wrap(err, "parsing elasticsearch response")
+	}
+
+	hits := r["hits"].(map[string]interface{})["hits"].([]interface{})
+	messages := make([]interface{}, len(hits))
+	for i := range hits {
+		message := hits[i].(map[string]interface{})["_source"].(map[string]interface{})
+		delete(message, "@timestamp")
+		delete(message, "@version")
+		delete(message, "port")
+		delete(message, "componentindex")
+		delete(message, "utime")
+		host := message["host"].(string)
+		pos := strings.Index(host, ".")
+		if pos != -1 {
+			host = host[:pos]
+		}
+		message["host"] = host
+		messages[n-i-1] = message
+	}
+
+	return messages, nil
 }

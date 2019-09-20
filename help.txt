@@ -80,4 +80,28 @@ $ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-dirac-logs-work
 
 $ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-dirac-logs-*/_mapping?pretty'
 
+# Listing des 10 derniers documents d’un serveur
+######################################################################
+
+$ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-*/_search?pretty' -H 'Content-Type: application/json' -d '
+{
+  "size": 10,
+  "query" : {
+    "term": {
+      "componentname.keyword": "WorkloadManagement/OptimizationMind"
+    }
+  },
+  "sort": [
+    {
+      "utime": {
+        "order": "desc"
+      }
+    },
+    {
+      "@timestamp": {
+        "order": "desc"
+      }
+    }
+  ]
+}'
 

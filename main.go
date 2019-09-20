@@ -4,18 +4,23 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gowww/router"
 )
 
+const defaultNbrMessages = 10
+
 var es = mustInitElasticsearch()
 
-func getServices(w http.ResponseWriter, r *http.Request) {
+func apiServices(w http.ResponseWriter, r *http.Request) {
+	log.Println("GET", r.RequestURI)
 	// request list of services to
-	services, err := getServicNames(es)
+	services, err := getServices(es)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
+		log.Println("error:", err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -24,11 +29,36 @@ func getServices(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func apiMessages(w http.ResponseWriter, r *http.Request) {
+	log.Println("GET", r.RequestURI)
+	service := router.Parameter(r, "*")
+	n := defaultNbrMessages
+	if nStr, ok := r.URL.Query()["n"]; ok {
+		var err error
+		n, err = strconv.Atoi(nStr[0])
+		if err != nil {
+			n = defaultNbrMessages
+		}
+	}
+	messages, err := getMessages(es, service, n) // <====== Implement this
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		log.Println("error:", err)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(messages); err != nil {
+		log.Println("error encode response:", err)
+	}
+}
+
 func main() {
 
 	rt := router.New()
 
-	rt.Get("/api/v0/services", http.HandlerFunc(getServices))
+	rt.Get("/api/v0/services", http.HandlerFunc(apiServices))
+	rt.Get("/api/v0/msgs/", http.HandlerFunc(apiMessages))
 
 	// serve static files in the ./www subdirectory
 	rt.Get("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("www"))))
