@@ -17,6 +17,7 @@ func apiServices(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET", r.RequestURI)
 	// request list of services to
 	services, err := getServices(es)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -31,6 +32,7 @@ func apiServices(w http.ResponseWriter, r *http.Request) {
 
 func apiMessages(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET", r.RequestURI)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	service := router.Parameter(r, "*")
 	n := defaultNbrMessages
 	if nStr, ok := r.URL.Query()["n"]; ok {
