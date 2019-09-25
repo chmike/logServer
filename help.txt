@@ -105,3 +105,9 @@ $ curl 'http://elastic:cppmcppm@134.158.21.55:9200/france-grille-*/_search?prett
   ]
 }'
 
+# Monitor HTTP traffic
+######################################################################
+
+localhost to localhost:
+tcpdump -A -s 0 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)' -i lo
+
