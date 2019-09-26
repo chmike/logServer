@@ -110,6 +110,12 @@ func getServices(es *elasticsearch.Client) ([]string, error) {
 	return services, nil
 }
 
+func serviceNameToIndex(service string) string {
+	res := strings.ReplaceAll(service, "/", "-")
+	res = strings.ToLower(res)
+	return res
+}
+
 func getMessages(es *elasticsearch.Client, service string, n int) ([]interface{}, error) {
 	// Build request
 	var buf bytes.Buffer
@@ -131,10 +137,11 @@ func getMessages(es *elasticsearch.Client, service string, n int) ([]interface{}
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
 		return nil, errors.Wrap(err, "encoding elasticsearch query")
 	}
+
 	// Perform the search request.
 	res, err := es.Search(
 		es.Search.WithContext(context.Background()),
-		es.Search.WithIndex("france-grille-*"),
+		es.Search.WithIndex("france-grille-dirac-logs-"+serviceNameToIndex(service)+"-*"),
 		es.Search.WithBody(&buf),
 		// es.Search.WithPretty(),
 	)
@@ -175,7 +182,7 @@ func getMessages(es *elasticsearch.Client, service string, n int) ([]interface{}
 			host = host[:pos]
 		}
 		message["host"] = host
-		messages[n-i-1] = message
+		messages[len(messages)-i-1] = message
 	}
 
 	return messages, nil
