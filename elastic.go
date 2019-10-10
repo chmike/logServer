@@ -5,6 +5,8 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -79,10 +81,15 @@ func getServices(es *elasticsearch.Client) ([]string, error) {
 		// es.Search.WithTrackTotalHits(true),
 		// es.Search.WithPretty(),
 	)
+	if res != nil {
+		defer func() {
+			_, err = io.Copy(ioutil.Discard, res.Body)
+			res.Body.Close()
+		}()
+	}
 	if err != nil {
 		return nil, errors.Wrap(err, "elasticsearch response")
 	}
-	defer res.Body.Close()
 
 	if res.IsError() {
 		var e map[string]interface{}
@@ -145,10 +152,15 @@ func getMessages(es *elasticsearch.Client, service string, n int) ([]interface{}
 		es.Search.WithBody(&buf),
 		// es.Search.WithPretty(),
 	)
+	if res != nil {
+		defer func() {
+			_, err = io.Copy(ioutil.Discard, res.Body)
+			res.Body.Close()
+		}()
+	}
 	if err != nil {
 		return nil, errors.Wrap(err, "elasticsearch response")
 	}
-	defer res.Body.Close()
 
 	if res.IsError() {
 		var e map[string]interface{}
