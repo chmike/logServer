@@ -1,16 +1,75 @@
-<!doctype html>
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>A static page</title>
-    <link rel="stylesheet" href="/static/style.css" TYPE="text/css" MEDIA=screen>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="static/type.css" />
+
 </head>
+<body onload="loadfetchService()" >
 
-<body>
-    <h1>logServer: hello there!</h1>
+  <div class="container">
+  <h1>CPPM service log DIRACC</h1>
+  </div>
 
-    <p>This is an example text</p>
+  
+<div class="container">
+    <div class="row">
+    <div id="content0" class="col-sm-4">
+
+        <div class="form-group">
+            <label for="service-dropdown">Select list:</label>
+            <select class="form-control" onchange="loadfetchData()" id="service-dropdown" name="service">
+            </select>
+          </div>
+    </div>
+    <div id="content1" class="col-sm-4">
+        <div class="form-group">
+        <label  >ordi</label>
+        <h4 id="txt" > </h4>
+        </div>
+    
+    </div>
+
+    <div id="content2" class="col-sm-2">
+      <div class="form-group">
+          <label for="page-dropdown">ligne</label>
+          <select class="form-control" id="page-dropdown" onchange="loadfetchDataRefresh()" name="page">
+            <option>10</option>
+            <option>50</option>
+            <option>100</option>
+          </select>
+        </div>
+  </div>
+  <div id="content3" class="col-sm-2">
+    <div class="form-group">
+      
+        <label for="refresh-dropdown">Refresh</label>
+        <select class="form-control" id="refresh-dropdown" onchange="loadfetchDataRefresh()" name="refresh">
+          <option value="5000">5 sec</option>
+          <option value="0">0 sec</option>
+          <option value="5000">5 sec</option>
+          <option value="10000">10 sec</option>
+          <option value="30000">30 sec</option>
+        </select>
+      </div>
+</div>
+
+  </div> 
+<br/>
+</div>
+
+<div class="container">
+  <div class="row" id="display-resources">
+    
+  </div>
+</div>
+
+<script src="static/source.js" ></script> 
+ 
 </body>
-
 </html>
